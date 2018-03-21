@@ -12,14 +12,18 @@ import android.os.AsyncTask;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.celenaflores.weatherapp.Common.Common;
 import com.example.celenaflores.weatherapp.Helper.Helper;
+import com.example.celenaflores.weatherapp.Model.Main;
 import com.example.celenaflores.weatherapp.Model.OpenWeatherMap;
+
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.squareup.picasso.Picasso;
 
 import java.lang.reflect.Type;
 
@@ -68,7 +72,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
         }
         Location location = locationManager.getLastKnownLocation(provider);
         if(location == null)
-            LOG.e("TAG", "No Location");
+            Log.e("TAG", "No Location");
 
     }
 
@@ -160,7 +164,16 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
             openWeatherMap = gson.fromJson(s,mType);
             pd.dismiss();
 
+            txtCity.setText(String.format("%s,%s",openWeatherMap.getName(),openWeatherMap.getSys().getCountry()));
+            txtLastUpdate.setText(String.format("Last Updated: %s", Common.getDateNow()));
+            txtDescription.setText(String.format("%s",openWeatherMap.getWeather().get(0).getDescription()));
+            txtHumidity.setText(String.format("%d%%",openWeatherMap.getMain().getHumidity()));
+            txtTime.setText(String.format("%s/%s",Common.unixTimeStampToDate(openWeatherMap.getSys().getSunrise()),Common.unixTimeStampToDate(openWeatherMap.getSys().getSunset())));
+            txtCelsius.setText(String.format("%.2f °C",openWeatherMap.getMain().getTemp()));
 
+            Picasso.with(MainActivity.this)
+                    .load(Common.getImage(openWeatherMap.getWeather().get(0).getIcon()))
+                    .into(iconImageView);
         }
     }
 }
